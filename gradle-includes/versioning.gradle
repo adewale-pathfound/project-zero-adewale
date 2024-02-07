@@ -1,0 +1,113 @@
+
+tasks.register('bumpPatchVersion') {
+    doLast {
+        bumpVersion(BumpType.PATCH)
+    }
+}
+
+tasks.register('bumpMinorVersion') {
+    doLast {
+        bumpVersion(BumpType.MINOR)
+    }
+}
+
+tasks.register('bumpMajorVersion') {
+    doLast {
+        bumpVersion(BumpType.MAJOR)
+    }
+}
+
+void bumpVersion(BumpType bumpType = BumpType.PATCH) {
+
+    println "Bumping ${bumpType} version . . ."
+
+    String currentVersionString = project.version
+
+    def artifactVersion = new Version(currentVersionString)
+
+    switch(bumpType){
+        case BumpType.MAJOR: artifactVersion.bumpMajor()
+            break
+        case BumpType.MINOR: artifactVersion.bumpMinor()
+            break
+        case BumpType.PATCH: artifactVersion.bumpPatch()
+            break
+    }
+
+    String newVersionString = artifactVersion.getName()
+
+    println "Bumping: ${currentVersionString} → ${newVersionString}"
+
+    file("${rootDir}/version.txt").text = "${newVersionString}"
+
+    println "Artifact version bumped successfully: ${currentVersionString} → ${newVersionString}"
+}
+
+enum BumpType {
+    MAJOR,
+    MINOR,
+    PATCH
+}
+
+
+enum VersionType {
+    SNAPSHOT,
+    RELEASE
+}
+
+class Version {
+
+    private int major
+    private int minor
+    private int patch
+    private String versionString
+    private VersionType versionType
+
+    Version(String version) {
+
+        this.versionType = version.endsWith(VersionType.SNAPSHOT.name()) ? VersionType.SNAPSHOT : VersionType.RELEASE
+
+        if(version.endsWith(VersionType.SNAPSHOT.name())) {
+            def (verString, verType) = version.tokenize('-')
+            println "verString: $verString, verType: $verType"
+            this.versionString = verString
+            this.versionType = VersionType.valueOf(verType)
+        } else {
+            this.versionString = version
+            this.versionType = VersionType.RELEASE
+        }
+
+        def (major, minor, patch) = versionString.tokenize('.')
+        this.major = major.toInteger()
+        this.minor = minor.toInteger()
+        this.patch = patch.toInteger()
+    }
+
+    @SuppressWarnings("unused")
+    void bumpMajor() {
+        major += 1
+        minor = 0
+        patch = 0
+    }
+
+    @SuppressWarnings("unused")
+    void bumpMinor() {
+        minor += 1
+        patch = 0
+    }
+
+    @SuppressWarnings("unused")
+    void bumpPatch() {
+        patch += 1
+    }
+
+    String getName() {
+        def versionString = "$major.$minor.$patch"
+        switch(versionType){
+            case VersionType.SNAPSHOT: "${versionString}-${versionType.name()}"
+                break
+            case VersionType.RELEASE: "${versionString}"
+                break
+        }
+    }
+}

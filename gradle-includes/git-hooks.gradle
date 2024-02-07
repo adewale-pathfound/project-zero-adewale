@@ -1,0 +1,34 @@
+import java.nio.file.Paths
+
+def hookDestinationFile = new File(Paths.get("${project.projectDir}/.git/hooks/pre-push").toString())
+def prePushScriptFile = new File("${project.projectDir}/pre-push.sh")
+
+tasks.register('maybeInitGitRepo') {
+    // init git repository if /.git/hooks directory doesn't exist
+    if (!hookDestinationFile.getParentFile().exists()) {
+        println "[${project.name}] ::: Initializing git repository... "
+        Runtime.getRuntime().exec("git init");
+    }
+}
+
+tasks.register('installGitHooks', Copy) {
+
+    println "[${project.name}] ::: Installing git pre-push hook... "
+    if (hookDestinationFile.exists()) {
+        println "[${project.name}] ::: Deleting old pre-push file [${hookDestinationFile.toString()}]... "
+        hookDestinationFile.delete()
+    }
+
+    println "[${project.name}] ::: Creating git pre-push hook... "
+
+    // Copy contents of pre-push.sh file to /.git/hooks/pre-push file
+    hookDestinationFile << prePushScriptFile.text
+}
+
+tasks.register('makeHookExecutable') {
+    println "[${project.name}] ::: Making git pre-push hook executable... "
+    Runtime.getRuntime().exec("chmod -R ug+x ${hookDestinationFile}");
+}
+
+maybeInitGitRepo.finalizedBy installGitHooks
+installGitHooks.finalizedBy makeHookExecutable
