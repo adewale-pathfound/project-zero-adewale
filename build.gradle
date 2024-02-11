@@ -6,7 +6,7 @@ import java.nio.file.Files
 
 plugins {
     id 'java'
-//    id "com.diffplug.spotless" version "6.13.0"
+    id "com.diffplug.spotless" version "6.13.0"
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
@@ -29,7 +29,7 @@ ext {
 }
 
 //apply from: "${System.properties['user.home']}/pathfound/artifactory-config.gradle"
-//apply from: "${rootDir}/gradle-includes/spotless.gradle"
+apply from: "${rootDir}/gradle-includes/spotless.gradle"
 apply from: "${rootDir}/gradle-includes/versioning.gradle"
 apply from: "${rootDir}/gradle-includes/git-hooks.gradle"
 //  apply from: "${rootDir}/gradle-includes/javadoc.gradle"
