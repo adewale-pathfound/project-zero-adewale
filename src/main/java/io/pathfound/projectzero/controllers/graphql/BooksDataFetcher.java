@@ -1,8 +1,8 @@
 package io.pathfound.projectzero.controllers.graphql;
 
-import com.netflix.graphql.dgs.DgsComponent;
+// import com.netflix.graphql.dgs.DgsComponent;
 
-@DgsComponent
+// @DgsComponent
 public class BooksDataFetcher {
   //  @DgsData(
   //      parentType = DgsConstants.BOOKQUERIES.TYPE_NAME,

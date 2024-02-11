@@ -6,7 +6,9 @@ import java.nio.file.Files
 
 plugins {
     id 'java'
-    id "com.diffplug.spotless" version "6.13.0"
+//    id "com.diffplug.spotless" version "6.13.0"
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
 
 group = 'io.pathfound'
@@ -26,28 +28,35 @@ ext {
     graphqlSchemasRootDir="${projectDir}/src/main/resources/schemas/graphql"
 }
 
-apply from: "${System.properties['user.home']}/pathfound/artifactory-config.gradle"
-apply from: "${rootDir}/gradle-includes/spotless.gradle"
+//apply from: "${System.properties['user.home']}/pathfound/artifactory-config.gradle"
+//apply from: "${rootDir}/gradle-includes/spotless.gradle"
 apply from: "${rootDir}/gradle-includes/versioning.gradle"
 apply from: "${rootDir}/gradle-includes/git-hooks.gradle"
 //  apply from: "${rootDir}/gradle-includes/javadoc.gradle"
 
 repositories {
     mavenCentral()
-//    mavenLocal()
-    maven {
-        url "${ARTIFACT_REPO_URL}"
-        credentials {
-            username "${ARTIFACT_REPO_USERNAME}"
-            password "${ARTIFACT_REPO_PASSWORD}"
-        }
-    }
+    mavenLocal()
+//    maven {
+//        url "${ARTIFACT_REPO_URL}"
+//        credentials {
+//            username "${ARTIFACT_REPO_USERNAME}"
+//            password "${ARTIFACT_REPO_PASSWORD}"
+//        }
+//    }
 }
 
 dependencies {
-    implementation "io.pathfound.shared:libs-springboot-web-dependency-library:${sharedLibrariesVersion}"
-    implementation "io.pathfound.shared:libs-graphql-components-library:${sharedLibrariesVersion}"
-    implementation "io.pathfound.shared:schemas-project-zero-graphql-schema:${sharedSchemasVersion}"
+//    implementation "io.pathfound.shared:libs-springboot-web-dependency-library:${sharedLibrariesVersion}"
+//    implementation "io.pathfound.shared:libs-graphql-components-library:${sharedLibrariesVersion}"
+//    implementation "io.pathfound.shared:schemas-project-zero-graphql-schema:${sharedSchemasVersion}"
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage'
+    }
 
     implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
     implementation "org.apache.commons:commons-text:${commonsTextVersion}"
@@ -73,4 +82,14 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.register('install') {
+//    dependsOn publishToMavenLocal
+    doLast {
+        exec {
+            workingDir "${project.projectDir}"
+            commandLine 'echo', "[${project.name}:${project.version}] >>> installed to maven local repository"
+        }
+    }
 }
